@@ -1,8 +1,4 @@
-if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
-    [Security.Principal.WindowsBuiltInRole] "Administrator")) {
-    Write-Error "NOT RUNNING AS ADMIN"
-    pause
-    exit
+
 }
 # Auto-elevate if not running as admin
 If (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(`
