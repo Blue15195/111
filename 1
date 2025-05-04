@@ -25,3 +25,4 @@ $consumer = Set-WmiInstance -Namespace root\subscription -Class CommandLineEvent
 Set-WmiInstance -Namespace root\subscription -Class __FilterToConsumerBinding -Arguments @{ 
     Filter = $filter
     Consumer = $consumer
+}
